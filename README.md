@@ -1,16 +1,16 @@
 # Shortcut-Manager-v2
+Hello, I come to share my tool to group Desktop shortcuts within 1 program. It's an old program, the code is kind of confusing and messy (Gambs lol), but I'll post the Source Code.
 
-Olá, venho compartilhar minha ferramenta para agrupar atalhos da Área de Trabalho dentro de 1 programa.
-É um programa antigo, o código é meio confuso e embolado(Gambiarras rsrs'), mas postarei o Código Fonte.
+Functions:
+-Store shortcuts in a single environment
+-Separate Game Applications
+-Sort alphabetically
+-Search bar to find the fastest program
+-Go to folder the file
+-Delete unnecessary files from Temp and others
+-Check the integrity of the file (if it has been altered or corrupted)
+-Define your primary language
 
-Funções:
-
-Separar Aplicativos de Jogos
-Organizar por ordem alfabética
-Barra de pesquisa para encontrar o programa mais rápido
-Executar junto do Windows
-Abrir pasta onde o arquivo está
-Deletar arquivos desnecessários da Temp e outras...
 
 ![Screenshot_1](https://user-images.githubusercontent.com/41032795/90457889-29122e00-e0d3-11ea-869c-22023a3171a9.png)
 ![Screenshot_2](https://user-images.githubusercontent.com/41032795/90457892-2adbf180-e0d3-11ea-98f4-22437daf4474.png)
