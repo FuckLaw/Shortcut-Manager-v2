@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
@@ -130,7 +130,6 @@ namespace Shortcut_Manager
             return tmp.ToString("n") + suffix;
         }
 
-
         public static string CryptXor(string path) {
             var Crypt = 0;
             var BytesFile = File.ReadAllBytes(path);
@@ -144,15 +143,14 @@ namespace Shortcut_Manager
             return Crypt.ToString("x");
         }
 
-        public void Execute_Administrator()
+        public void CheckExistsFiles()
         {
-            Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
             try
             {
-                if(IniFile.Read(IniFile.GetSectionNames()[listView1.SelectedItems[0].Index], "Folder") == "false" && 
-                    !File.Exists(listView1.SelectedItems[0].SubItems[1].Text))
+                if (IniFile.Read(IniFile.GetSectionNames()[listView1.SelectedItems[0].Index], "Folder") == "false" &&
+                        !File.Exists(listView1.SelectedItems[0].SubItems[1].Text))
                 {
-                    if(rdb_language_en_us.Checked)
+                    if (rdb_language_en_us.Checked)
                         MessageBox.Show("File removed from destination folder!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     else
                         MessageBox.Show("Arquivo não encontrado na pasta destino!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -179,7 +177,7 @@ namespace Shortcut_Manager
                     return;
                 }
 
-                if(IniFile.Read(IniFile.GetSectionNames()[listView1.SelectedItems[0].Index], "Folder") == "true" && 
+                if (IniFile.Read(IniFile.GetSectionNames()[listView1.SelectedItems[0].Index], "Folder") == "true" &&
                     !Directory.Exists(listView1.SelectedItems[0].SubItems[1].Text))
                 {
                     if (rdb_language_en_us.Checked)
@@ -207,7 +205,18 @@ namespace Shortcut_Manager
                     }
                     Refresh_ListView();
                     return;
+
                 }
+            }
+            catch (Exception) { }
+        }
+
+        public void Execute_Administrator()
+        {
+            Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
+            try
+            {
+                CheckExistsFiles();
 
                 if (listView1.SelectedItems[0].SubItems[2].Text == "true")
                 {
@@ -241,78 +250,12 @@ namespace Shortcut_Manager
             {
                 listView1.Items.Clear();
                 Imagelist.Images.Clear();
+                CheckExistsFiles();
                 for (int i = 1; i < IniFile.GetSectionNames().Length; i++)
                 {
-                    if (!File.Exists(IniFile.Read(IniFile.GetSectionNames()[i], "Path")) && IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "false")
+                    switch (cbb_category.SelectedIndex)
                     {
-                        if (rdb_language_en_us.Checked)
-                        {
-                            MessageBox.Show("'" + IniFile.Read(IniFile.GetSectionNames()[i], "Path") + "'" +
-                                " was not found and has been removed!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            MessageBox.Show("'" + IniFile.Read(IniFile.GetSectionNames()[i], "Path") + "'" +
-                                " não foi encontrado e foi removido!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        IniFile.Clear_Section(IniFile.GetSectionNames()[i]);
-                        Imagelist.Images.Clear();
-                    }
-
-                
-                    if (!Directory.Exists(IniFile.Read(IniFile.GetSectionNames()[i], "Path")) && IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
-                    {
-                        if (rdb_language_en_us.Checked)
-                        {
-                            MessageBox.Show("'" + IniFile.Read(IniFile.GetSectionNames()[i], "Path") + "'" +
-                                " was not found and has been removed!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            MessageBox.Show("'" + IniFile.Read(IniFile.GetSectionNames()[i], "Path") + "'" +
-                                " não foi encontrado e foi removido!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        IniFile.Clear_Section(IniFile.GetSectionNames()[i]);
-                        Imagelist.Images.Clear();
-                    }
-
-
-                    if (cbb_category.SelectedItem.ToString() == "All" || cbb_category.SelectedItem.ToString() == "Todos")
-                    {
-                        if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
-                        {
-                            Image img = new Bitmap(Properties.Resources.folder_40px);
-                            Imagelist.Images.Add("image" + i, img);
-                            listView1.SmallImageList = Imagelist;
-                            ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
-                            item.ImageKey = "image" + i; // Adicionar 1 a 1 
-                            item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
-                            listView1.Items.Add(item); // Load New ListView
-                        }
-
-
-                        if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "false")
-                        {
-                            var filePath = IniFile.Read(IniFile.GetSectionNames()[i], "Path");
-                            var theIcon = IconFromFilePath(filePath); // Capturar icones dos aplicativos
-                            Icon.ExtractAssociatedIcon(filePath);
-                            Imagelist.Images.Add("image" + i, theIcon.ToBitmap()); // Converter de ico para image
-                            listView1.SmallImageList = Imagelist;
-                            ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
-                            item.ImageKey = "image" + i; // Adicionar 1 a 1 
-                            item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
-                            item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Run_administrator"));
-                            item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "SizeFile"));
-                            item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "CryptXor"));
-                            listView1.Items.Add(item); // Load New ListView
-                        }
-                    }
-
-
-                    if (cbb_category.SelectedItem.ToString() == "Apps")
-                    {
-                        if (IniFile.Read(IniFile.GetSectionNames()[i], "Category") == "apps")
-                        {
+                        case 0: // Todos
                             if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
                             {
                                 Image img = new Bitmap(Properties.Resources.folder_40px);
@@ -323,9 +266,7 @@ namespace Shortcut_Manager
                                 item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
                                 listView1.Items.Add(item); // Load New ListView
                             }
-
-
-                            if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "false")
+                            else // Folder False
                             {
                                 var filePath = IniFile.Read(IniFile.GetSectionNames()[i], "Path");
                                 var theIcon = IconFromFilePath(filePath); // Capturar icones dos aplicativos
@@ -340,47 +281,75 @@ namespace Shortcut_Manager
                                 item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "CryptXor"));
                                 listView1.Items.Add(item); // Load New ListView
                             }
-                        }
-                    }
+                        break;
 
-                    if (cbb_category.SelectedItem.ToString() == "Games" || cbb_category.SelectedItem.ToString() == "Jogos")
-                    {
-                        if (IniFile.Read(IniFile.GetSectionNames()[i], "Category") == "games")
-                        {
-                            if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
+                        case 1: // Apps
+                            if(IniFile.Read(IniFile.GetSectionNames()[i], "Category") == "apps")
                             {
-                                Image img = new Bitmap(Properties.Resources.folder_40px);
-                                Imagelist.Images.Add("image" + i, img);
-                                listView1.SmallImageList = Imagelist;
-                                ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
-                                item.ImageKey = "image" + i; // Adicionar 1 a 1 
-                                item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
-                                listView1.Items.Add(item); // Load New ListView
+                                if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
+                                {
+                                    Image img = new Bitmap(Properties.Resources.folder_40px);
+                                    Imagelist.Images.Add("image" + i, img);
+                                    listView1.SmallImageList = Imagelist;
+                                    ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
+                                    item.ImageKey = "image" + i; // Adicionar 1 a 1 
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
+                                    listView1.Items.Add(item); // Load New ListView
+                                }
+                                else // Folder False
+                                {
+                                    var filePath = IniFile.Read(IniFile.GetSectionNames()[i], "Path");
+                                    var theIcon = IconFromFilePath(filePath); // Capturar icones dos aplicativos
+                                    Icon.ExtractAssociatedIcon(filePath);
+                                    Imagelist.Images.Add("image" + i, theIcon.ToBitmap()); // Converter de ico para image
+                                    listView1.SmallImageList = Imagelist;
+                                    ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
+                                    item.ImageKey = "image" + i; // Adicionar 1 a 1 
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Run_administrator"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "SizeFile"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "CryptXor"));
+                                    listView1.Items.Add(item); // Load New ListView
+                                }
                             }
+                        break;
 
 
-                            if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "false")
+                        case 2: // Games
+                            if (IniFile.Read(IniFile.GetSectionNames()[i], "Category") == "games")
                             {
-                                var filePath = IniFile.Read(IniFile.GetSectionNames()[i], "Path");
-                                var theIcon = IconFromFilePath(filePath); // Capturar icones dos aplicativos
-                                Icon.ExtractAssociatedIcon(filePath);
-                                Imagelist.Images.Add("image" + i, theIcon.ToBitmap()); // Converter de ico para image
-                                listView1.SmallImageList = Imagelist;
-                                ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
-                                item.ImageKey = "image" + i; // Adicionar 1 a 1 
-                                item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
-                                item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Run_administrator"));
-                                item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "SizeFile"));
-                                item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "CryptXor"));
-                                listView1.Items.Add(item); // Load New ListView
+                                if (IniFile.Read(IniFile.GetSectionNames()[i], "Folder") == "true")
+                                {
+                                    Image img = new Bitmap(Properties.Resources.folder_40px);
+                                    Imagelist.Images.Add("image" + i, img);
+                                    listView1.SmallImageList = Imagelist;
+                                    ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
+                                    item.ImageKey = "image" + i; // Adicionar 1 a 1 
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
+                                    listView1.Items.Add(item); // Load New ListView
+                                }
+                                else // Folder False
+                                {
+                                    var filePath = IniFile.Read(IniFile.GetSectionNames()[i], "Path");
+                                    var theIcon = IconFromFilePath(filePath); // Capturar icones dos aplicativos
+                                    Icon.ExtractAssociatedIcon(filePath);
+                                    Imagelist.Images.Add("image" + i, theIcon.ToBitmap()); // Converter de ico para image
+                                    listView1.SmallImageList = Imagelist;
+                                    ListViewItem item = new ListViewItem(IniFile.Read(IniFile.GetSectionNames()[i], "Name"));
+                                    item.ImageKey = "image" + i; // Adicionar 1 a 1 
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Path"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "Run_administrator"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "SizeFile"));
+                                    item.SubItems.Add(IniFile.Read(IniFile.GetSectionNames()[i], "CryptXor"));
+                                    listView1.Items.Add(item); // Load New ListView
+                                }
                             }
-                        }
+                            break;
                     }
                 }
             }
             catch (Exception) { }
         }
-
 
         public void ClearFolder(string FolderName)
         {
@@ -406,7 +375,6 @@ namespace Shortcut_Manager
             }
         }
 
-
         public static Icon IconFromFilePath(string filePath)
         {
             var result = (Icon)null;
@@ -418,7 +386,6 @@ namespace Shortcut_Manager
             return result;
         }
 
-
         public Form1()
         {
             this.InitializeComponent();
@@ -427,9 +394,7 @@ namespace Shortcut_Manager
             if (!File.Exists(Application.StartupPath + "\\Config.ini"))
             {
                 if (File.Exists(Application.StartupPath + "\\Config.ini.bak"))
-                {
                     File.Copy(Application.StartupPath + "\\Config.ini.bak", Application.StartupPath + "\\Config.ini");
-                }
                 else
                 {
                     File.Create(Application.StartupPath + "\\Config.ini").Close();
@@ -439,7 +404,6 @@ namespace Shortcut_Manager
                     rdb_language_en_us.Checked = true;
                     Language_en_us();
                 }
-
             }
             else
             {
@@ -457,7 +421,6 @@ namespace Shortcut_Manager
 
                 if (cbb_category.SelectedValue == null)
                     cbb_category.SelectedIndex = 0;
-
                 Refresh_ListView();
             }
 
@@ -470,7 +433,6 @@ namespace Shortcut_Manager
                 Close();
             }
         }
-
 
         private void btn_search_file_folder_Click(object sender, EventArgs e)
         {
@@ -486,31 +448,24 @@ namespace Shortcut_Manager
                 return;
             }
 
-            
-            if (cbb_file_folder.SelectedItem.ToString() == "File" || cbb_file_folder.SelectedItem.ToString() == "Arquivo")
-                chk_run_as_administrator.Enabled = true;
-            else
-                chk_run_as_administrator.Enabled = false;
-
             if(cbb_file_folder.SelectedItem.ToString() == "File" || cbb_file_folder.SelectedItem.ToString() == "Arquivo")
             {
+                chk_run_as_administrator.Enabled = true;
                 using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "All files|*.*", ValidateNames = true, CheckPathExists = true, Multiselect = false })
                 {
                     if (ofd.ShowDialog() == DialogResult.OK)
-                    {
                         foreach (string f in ofd.FileNames)
                         {
                             FileInfo fi = new FileInfo(f);
                             txb_name.Text = Path.GetFileNameWithoutExtension(fi.Name);
                             txb_path.Text = fi.FullName;
                         }
-                    }
                 }
             }
-
+            else
+                chk_run_as_administrator.Enabled = false;
 
             if (cbb_file_folder.SelectedItem.ToString() == "Folder" || cbb_file_folder.SelectedItem.ToString() == "Pasta")
-            {
                 using (FolderBrowserDialog ofd = new FolderBrowserDialog())
                 {
                     if (ofd.ShowDialog() == DialogResult.OK)
@@ -520,14 +475,11 @@ namespace Shortcut_Manager
                         txb_path.ReadOnly = true;
                     }
                 }
-            }
         }
-
 
         private void btn_save_Click(object sender, EventArgs e)
         {
-            if (cbb_category.SelectedValue == null)
-                cbb_category.SelectedIndex = 0;
+            if (cbb_category.SelectedValue == null) cbb_category.SelectedIndex = 0;
 
             try
             {
@@ -604,7 +556,8 @@ namespace Shortcut_Manager
                         IniFile.Write(txb_name.Text, "Folder", "False");
                         if(cbb_add_category.SelectedItem.ToString() == "Apps")
                             IniFile.Write(txb_name.Text, "Category", "apps");
-                        else if (cbb_add_category.SelectedItem.ToString() == "Games" ||
+
+                        if (cbb_add_category.SelectedItem.ToString() == "Games" ||
                             cbb_add_category.SelectedItem.ToString() == "Jogos")
                             IniFile.Write(txb_name.Text, "Category", "games");
 
@@ -612,6 +565,7 @@ namespace Shortcut_Manager
                             IniFile.Write(txb_name.Text, "Run_administrator", "true");
                         else
                             IniFile.Write(txb_name.Text, "Run_administrator", "false");
+
                         IniFile.Write(txb_name.Text, "SizeFile", GetFileSize(File.OpenRead(txb_path.Text).Length));
                         IniFile.Write(txb_name.Text, "CryptXor", CryptXor(txb_path.Text));
                     }
@@ -628,7 +582,8 @@ namespace Shortcut_Manager
                         IniFile.Write(txb_name.Text, "Folder", "True");
                         if (cbb_add_category.SelectedItem.ToString() == "Apps")
                             IniFile.Write(txb_name.Text, "Category", "apps");
-                        else if (cbb_add_category.SelectedItem.ToString() == "Games" ||
+                        
+                        if (cbb_add_category.SelectedItem.ToString() == "Games" ||
                                 cbb_add_category.SelectedItem.ToString() == "Jogos")
                         IniFile.Write(txb_name.Text, "Category", "games");
                     }
@@ -640,9 +595,7 @@ namespace Shortcut_Manager
                 if (File.Exists(Application.StartupPath + "\\Config.ini"))
                 {
                     if (File.Exists(Application.StartupPath + "\\Config.ini.bak"))
-                    {
                         File.Delete(Application.StartupPath + "\\Config.ini.bak");
-                    }
                     File.Copy(Application.StartupPath + "\\Config.ini", Application.StartupPath + "\\Config.ini.bak");
                 }
                 if (rdb_language_en_us.Checked)
@@ -652,7 +605,6 @@ namespace Shortcut_Manager
             }
             catch (Exception) { }
         }
-
 
         private void chk_alphabet_CheckedChanged(object sender, EventArgs e)
         {
@@ -667,7 +619,6 @@ namespace Shortcut_Manager
                 listView1.Items.Clear();
                 IniFile.Write("Config00123456789", "Alphabet_Checked", "no");
                 listView1.Sorting = SortOrder.None;
-
                 Refresh_ListView();
             }
         }
@@ -678,22 +629,17 @@ namespace Shortcut_Manager
             try
             {
                 txb_program.Text = listView1.SelectedItems[0].Text;
-
                 if (e.Button == System.Windows.Forms.MouseButtons.Right)
-                {
                     contextMenuStrip.Show(Cursor.Position);
-                }
             }
             catch (Exception)  { }
         }
-
 
         private void listView1_ItemActivate(object sender, EventArgs e)
         {
             Execute_Administrator();
         }
 
-        
         private void txb_program_KeyDown(object sender, KeyEventArgs e)
         {
             try
@@ -732,7 +678,6 @@ namespace Shortcut_Manager
             catch (Exception) { }
         }
 
-
         private void chk_start_with_windows_CheckedChanged(object sender, EventArgs e)
         {
             try
@@ -750,36 +695,11 @@ namespace Shortcut_Manager
                     shortcut.Save();
                 }
                 else
-                {
                     if(File.Exists(startUpFolderPath + "\\" + Application.ProductName + ".lnk"))
                         File.Delete(startUpFolderPath + "\\" + Application.ProductName + ".lnk");
-                }
             }
             catch (Exception) { }
-            /*
-            try
-            {
-                string runKey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
-                Microsoft.Win32.RegistryKey startupKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey);
-
-                if (chk_start_with_windows.Checked)
-                {
-                    startupKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey, true);
-                    startupKey.SetValue("Shortcut Manager", "\"" + Application.ExecutablePath + "\"");
-                    startupKey.Close();
-                }
-                else
-                {
-                    // remove startup
-                    startupKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(runKey, true);
-                    startupKey.DeleteValue("Shortcut Manager", false);
-                    startupKey.Close();
-                }
-            }
-            catch (Exception) { }
-            */
         }
-
 
         private void btn_unnecessary_files_Click(object sender, EventArgs e)
         {
@@ -789,7 +709,6 @@ namespace Shortcut_Manager
                     MessageBox.Show("Do not close the application, It may take some time!", "info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else
                     MessageBox.Show("Não feche a aplicação, pode demorar um pouco!", "info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
                 ClearFolder(Path.GetTempPath());
                 ClearFolder(current_partition + @"\Windows\SoftwareDistribution\Download");
                 ClearFolder(current_partition + @"\Windows\Prefetch");
@@ -818,9 +737,7 @@ namespace Shortcut_Manager
                         if (File.Exists(Application.StartupPath + "\\Config.ini"))
                         {
                             if (File.Exists(Application.StartupPath + "\\Config.ini.bak"))
-                            {
                                 File.Delete(Application.StartupPath + "\\Config.ini.bak");
-                            }
                             File.Delete(Application.StartupPath + "\\Config.ini");
                             Application.Restart();
                             Environment.Exit(0);
@@ -838,9 +755,7 @@ namespace Shortcut_Manager
                         if (File.Exists(Application.StartupPath + "\\Config.ini"))
                         {
                             if (File.Exists(Application.StartupPath + "\\Config.ini.bak"))
-                            {
                                 File.Delete(Application.StartupPath + "\\Config.ini.bak");
-                            }
                             File.Delete(Application.StartupPath + "\\Config.ini");
                             Application.Restart();
                             Environment.Exit(0);
@@ -866,7 +781,6 @@ namespace Shortcut_Manager
             Language_pt_br();
         }
 
-
         private void testeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
@@ -882,15 +796,12 @@ namespace Shortcut_Manager
 
             Form2 f2 = new Form2();
             f2.ShowDialog();
-
             Refresh_ListView();
         }
-
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
-
             if (rdb_language_en_us.Checked)
             {
                 if (MessageBox.Show("Are you sure you want to remove?",
@@ -927,9 +838,7 @@ namespace Shortcut_Manager
             Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
 
             if (File.Exists(listView1.SelectedItems[0].SubItems[1].Text))
-            {
                 Process.Start(Path.GetDirectoryName(listView1.SelectedItems[0].SubItems[1].Text));
-            }
             else
             {
                 if (rdb_language_en_us.Checked)
@@ -942,7 +851,6 @@ namespace Shortcut_Manager
         private void checkIntegrityToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Ini_exists(); // Verificar se está tudo OK com a configuração do arquivo!
-
             if (rdb_language_en_us.Checked)
                 if (CryptXor(IniFile.Read(listView1.SelectedItems[0].Text, "Path")) != IniFile.Read(listView1.SelectedItems[0].Text, "CryptXor"))
                     MessageBox.Show("File with Invalid Integrity!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
