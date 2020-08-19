@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -73,32 +73,23 @@ namespace Shortcut_Manager
                     if (cbb_category.SelectedItem.ToString() == "Games" || cbb_category.SelectedItem.ToString() == "Jogos")
                         IniFile.Write(txb_name.Text, "Category", "games");
 
-
                     if (chk_run_as_administrator.Checked)
                         IniFile.Write(txb_name.Text, "Run_administrator", "true");
                     else
                         IniFile.Write(txb_name.Text, "Run_administrator", "false");
 
                     if (Form1.Edit_Language == "en-us")
-                    {
                         MessageBox.Show("Successfully edited!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
                     else
-                    {
                         MessageBox.Show("Editado com Sucesso!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
                     Close();
                 }
                 else
                 {
                     if (Form1.Edit_Language == "en-us")
-                    {
                         MessageBox.Show("File moved or removed!!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                     else
-                    {
                         MessageBox.Show("Arquivo movido ou removido!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
             }
             else if (Form1.Edit_Folder == "true")
@@ -123,25 +114,17 @@ namespace Shortcut_Manager
                         IniFile.Write(txb_name.Text, "Run_administrator", "false");
 
                     if (Form1.Edit_Language == "en-us")
-                    {
                         MessageBox.Show("Successfully edited!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
                     else
-                    {
                         MessageBox.Show("Editado com Sucesso!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
                     Close();
                 }
                 else
                 {
                     if (Form1.Edit_Language == "en-us")
-                    {
                         MessageBox.Show("Folder moved or removed!!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                     else
-                    {
                         MessageBox.Show("Pasta movida ou removida!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
             }
         }
